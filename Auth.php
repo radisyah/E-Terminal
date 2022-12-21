@@ -61,7 +61,7 @@ class Auth extends BaseController
       $data = array(
         'nama_user' => $this->request->getPost('nama_user'),
         'email' => $this->request->getPost('email'),
-        'password' => password_hash($this->request->getPost('password'), PASSWORD_BCRYPT),
+        'password' => $this->request->getPost('password'),
         'level' => 3
       );
       $this->ModelAuth->save_register($data);
@@ -98,25 +98,21 @@ class Auth extends BaseController
           ]
         ],
     ])) {
-        // jika tidak valids
+        // jika tidak valid
       $email = $this->request->getPost('email');
       $password = $this->request->getPost('password');
-      $cek = $this->ModelAuth->login($email);
+      $cek = $this->ModelAuth->login($email, $password);
       if ($cek) {
-        if(password_verify($password, $cek['password'])){
-          // Jika datanya ditemukan
-          session()->set('log',true);
-          session()->set('nama_user',$cek['nama_user']);
-          session()->set('email',$cek['email']);
-          session()->set('level',$cek['level']);
-          session()->set('foto_user',$cek['foto_user']);
-          // Logins
-          return redirect()->to(base_url('home/user'));
-        }else{
-          // Jika datanya tidak cocok
-          session()->setFlashdata('pesan', 'Password Salah');
-          return redirect()->to(base_url('auth/login'));
-        }
+        // Jika datanya ditemukan
+        session()->set('log',true);
+        session()->set('nama_user',$cek['nama_user']);
+        session()->set('email',$cek['email']);
+        session()->set('password',$cek['password']);
+        session()->set('level',$cek['level']);
+        session()->set('foto_user',$cek['foto_user']);
+        // Logins
+        return redirect()->to(base_url('menu/menu_pengunjung'));
+
       }else {
         // Jika datanya tidak cocok
         session()->setFlashdata('pesan', 'Login Gagal');
